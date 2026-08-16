@@ -1,0 +1,13 @@
+# Python virtual environments
+.venv/
+venv/
+env/
+__pycache__/
+
+# Aria specific ignores
+*.vrs      # Raw video/sensor recording files (these get massive)
+*.sqlite   # Local databases
+.aria/     # Aria security certificates (Keep these local!)
+
+# OS generated files
+.DS_Store

@@ -1,0 +1,3 @@
+projectaria-client-sdk
+numpy
+matplotlib
