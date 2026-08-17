@@ -11,6 +11,7 @@ time windows so the dashboard can still show post-session feedback.
 """
 
 import argparse
+import base64
 import csv
 import json
 import math
@@ -361,14 +362,34 @@ def build_dashboard_summary(segments, eye_report):
     return summary
 
 
+def image_to_data_uri(image_path):
+    """Read an image file and return a base64 data URI string."""
+    path = Path(image_path)
+    if not path.exists():
+        return None
+
+    suffix = path.suffix.lower()
+    mime_types = {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".svg": "image/svg+xml",
+    }
+    mime = mime_types.get(suffix, "image/png")
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{mime};base64,{encoded}"
+
+
 def dashboard_eye_images(eye_report, eye_image, web_output_path):
     images = {}
     if eye_report:
         for key, value in eye_report.get("images", {}).items():
-            images[key] = dashboard_asset_path(Path(value), web_output_path)
+            data_uri = image_to_data_uri(value)
+            images[key] = data_uri or dashboard_asset_path(Path(value), web_output_path)
 
     if eye_image and "heatmap" not in images:
-        images["heatmap"] = dashboard_asset_path(eye_image, web_output_path)
+        data_uri = image_to_data_uri(eye_image)
+        images["heatmap"] = data_uri or dashboard_asset_path(eye_image, web_output_path)
 
     return images
 
