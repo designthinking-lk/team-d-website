@@ -21,6 +21,27 @@
       </div>
     </header>
 
+    <section class="device-panel" aria-label="Aria recording controls">
+      <div class="device-status-row">
+        <div>
+          <p class="eyebrow">Aria Gen 2 capture</p>
+          <h2>Record From Glasses</h2>
+          <p id="deviceHelp">Open this dashboard through the local server to use USB-C recording controls. Otherwise the last generated report stays visible below.</p>
+        </div>
+        <div class="device-connect">
+          <button class="check-button" id="checkDeviceButton" type="button">Check Glasses</button>
+          <span class="status-pill offline" id="deviceStatusPill">Offline mode</span>
+        </div>
+      </div>
+
+      <div class="recording-actions">
+        <button class="record-button start" id="startRecordingButton" type="button" disabled>START</button>
+        <button class="record-button stop" id="stopRecordingButton" type="button" disabled>STOP</button>
+        <button class="record-button generate" id="generateReportButton" type="button" disabled>GENERATE</button>
+      </div>
+      <p class="recording-note" id="recordingNote">Last generated report is shown below until a new VRS recording is processed.</p>
+    </section>
+
     <section class="summary-grid" id="summaryGrid" aria-label="Speech summary"></section>
 
     <section class="legend" aria-label="Highlight legend">
@@ -98,6 +119,8 @@
       </div>
     </section>
   </main>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
 
   <script src="review_data.generated.js"></script>
   <script src="app.js"></script>

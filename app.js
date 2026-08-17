@@ -160,6 +160,23 @@ const eyeEmpty = document.querySelector("#eyeEmpty");
 const eyeHeatmapImage = document.querySelector("#eyeHeatmapImage");
 const eyeTimelineImage = document.querySelector("#eyeTimelineImage");
 const eyeAudienceMap = document.querySelector("#eyeAudienceMap");
+const checkDeviceButton = document.querySelector("#checkDeviceButton");
+const startRecordingButton = document.querySelector("#startRecordingButton");
+const stopRecordingButton = document.querySelector("#stopRecordingButton");
+const generateReportButton = document.querySelector("#generateReportButton");
+const deviceStatusPill = document.querySelector("#deviceStatusPill");
+const deviceHelp = document.querySelector("#deviceHelp");
+const recordingNote = document.querySelector("#recordingNote");
+const toastStack = document.querySelector("#toastStack");
+
+const isLocalDashboardServer = ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
+let deviceState = {
+  connected: false,
+  recording: false,
+  last_vrs_path: null
+};
+let deviceBusy = false;
+let statusPollTimer = null;
 
 function renderSummary(summary) {
   summaryGrid.innerHTML = "";
@@ -181,6 +198,211 @@ function renderSummary(summary) {
 
     card.append(label, value, note);
     summaryGrid.append(card);
+  });
+}
+
+function showToast(message, type = "success") {
+  if (!toastStack) {
+    return;
+  }
+
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  toastStack.append(toast);
+
+  window.setTimeout(() => {
+    toast.remove();
+  }, 3600);
+}
+
+async function apiRequest(path, options = {}) {
+  const response = await fetch(path, {
+    ...options,
+    headers: {
+      Accept: "application/json",
+      ...(options.headers || {})
+    }
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || `Request failed: ${response.status}`);
+  }
+  return payload;
+}
+
+function setDeviceBusy(isBusy) {
+  deviceBusy = isBusy;
+  updateDeviceControls(deviceState);
+}
+
+function setStatusPill(text, className) {
+  if (!deviceStatusPill) {
+    return;
+  }
+
+  deviceStatusPill.className = `status-pill ${className}`;
+  deviceStatusPill.textContent = text;
+}
+
+function updateDeviceControls(nextState = {}) {
+  deviceState = { ...deviceState, ...nextState };
+
+  if (!checkDeviceButton || !startRecordingButton || !stopRecordingButton || !generateReportButton) {
+    return;
+  }
+
+  if (!isLocalDashboardServer) {
+    checkDeviceButton.disabled = true;
+    startRecordingButton.disabled = true;
+    stopRecordingButton.disabled = true;
+    generateReportButton.disabled = true;
+    setStatusPill("Static report mode", "offline");
+    if (deviceHelp) {
+      deviceHelp.textContent = "Open the dashboard through aria_post_review/dashboard_server.py to use USB-C glasses controls. The last generated report remains visible below.";
+    }
+    return;
+  }
+
+  if (deviceHelp) {
+    deviceHelp.textContent = "Connect the glasses over USB-C, click Check Glasses, then use START, STOP, and GENERATE to refresh the report.";
+  }
+
+  checkDeviceButton.disabled = deviceBusy;
+  startRecordingButton.disabled = deviceBusy || !deviceState.connected || deviceState.recording;
+  stopRecordingButton.disabled = deviceBusy || !deviceState.recording;
+  generateReportButton.disabled = deviceBusy || deviceState.recording || !deviceState.last_vrs_path;
+
+  if (deviceState.recording) {
+    setStatusPill("Recording", "recording");
+    const seconds = Math.round(deviceState.recording_seconds || 0);
+    recordingNote.textContent = `Recording in progress${seconds ? ` (${seconds}s)` : ""}. Press STOP to download the VRS file.`;
+    startStatusPolling();
+    return;
+  }
+
+  stopStatusPolling();
+
+  if (deviceState.connected) {
+    setStatusPill("Connected", "connected");
+    recordingNote.textContent = deviceState.last_vrs_path
+      ? `Downloaded VRS ready: ${deviceState.last_vrs_path}`
+      : "Glasses connected. Press START to begin a new speech recording.";
+    return;
+  }
+
+  setStatusPill("Not connected", "offline");
+  recordingNote.textContent = deviceState.last_error
+    ? `Connection check failed: ${deviceState.last_error}`
+    : "Last generated report is shown below until a new VRS recording is processed.";
+}
+
+async function refreshDeviceStatus({ silent = true } = {}) {
+  try {
+    const status = await apiRequest("/api/device/status");
+    updateDeviceControls(status);
+    if (!silent) {
+      showToast(status.connected ? "Connected" : "Glasses not connected", status.connected ? "success" : "error");
+    }
+  } catch (error) {
+    updateDeviceControls({
+      connected: false,
+      recording: false,
+      last_error: error.message
+    });
+    if (!silent) {
+      showToast(error.message, "error");
+    }
+  }
+}
+
+function startStatusPolling() {
+  if (statusPollTimer) {
+    return;
+  }
+
+  statusPollTimer = window.setInterval(() => {
+    refreshDeviceStatus({ silent: true });
+  }, 2500);
+}
+
+function stopStatusPolling() {
+  if (!statusPollTimer) {
+    return;
+  }
+
+  window.clearInterval(statusPollTimer);
+  statusPollTimer = null;
+}
+
+function initDeviceControls() {
+  if (!checkDeviceButton || !startRecordingButton || !stopRecordingButton || !generateReportButton) {
+    return;
+  }
+
+  updateDeviceControls(deviceState);
+
+  checkDeviceButton.addEventListener("click", async () => {
+    setDeviceBusy(true);
+    try {
+      const status = await apiRequest("/api/device/status");
+      updateDeviceControls(status);
+      showToast(status.connected ? "Connected" : "Glasses not connected", status.connected ? "success" : "error");
+    } catch (error) {
+      updateDeviceControls({ connected: false, recording: false, last_error: error.message });
+      showToast(error.message, "error");
+    } finally {
+      setDeviceBusy(false);
+    }
+  });
+
+  startRecordingButton.addEventListener("click", async () => {
+    setDeviceBusy(true);
+    try {
+      const status = await apiRequest("/api/recording/start", { method: "POST" });
+      updateDeviceControls(status);
+      showToast("Recording started");
+    } catch (error) {
+      updateDeviceControls({ last_error: error.message });
+      showToast(error.message, "error");
+    } finally {
+      setDeviceBusy(false);
+    }
+  });
+
+  stopRecordingButton.addEventListener("click", async () => {
+    setDeviceBusy(true);
+    try {
+      const status = await apiRequest("/api/recording/stop", { method: "POST" });
+      updateDeviceControls(status);
+      showToast(status.downloaded ? "Downloaded" : "Recording stopped", status.downloaded ? "success" : "error");
+    } catch (error) {
+      updateDeviceControls({ last_error: error.message });
+      showToast(error.message, "error");
+    } finally {
+      setDeviceBusy(false);
+    }
+  });
+
+  generateReportButton.addEventListener("click", async () => {
+    setDeviceBusy(true);
+    if (recordingNote) {
+      recordingNote.textContent = "Generating report from the downloaded VRS file. This can take a few minutes.";
+    }
+
+    try {
+      const result = await apiRequest("/api/report/generate", { method: "POST" });
+      if (result.review_data) {
+        setData(result.review_data, "Generated live Aria report");
+      }
+      updateDeviceControls(result.device || deviceState);
+      showToast("Report generated");
+    } catch (error) {
+      updateDeviceControls({ last_error: error.message });
+      showToast(error.message, "error");
+    } finally {
+      setDeviceBusy(false);
+    }
   });
 }
 
@@ -605,3 +827,4 @@ const initialSource = window.generatedReviewData
   : "Built-in sample data";
 
 setData(initialData, initialSource);
+initDeviceControls();
