@@ -1,3 +1,8 @@
 projectaria-client-sdk
+projectaria-tools
 numpy
 matplotlib
+faster-whisper
+openai
+pandas
+seaborn

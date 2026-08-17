@@ -3,16 +3,28 @@
 venv/
 env/
 __pycache__/
+.env
+.env.*
+!.env.example
 
 # Aria specific ignores
-*.vrs      # Raw video/sensor recording files (these get massive)
-*.sqlite   # Local databases
-.aria/     # Aria security certificates (Keep these local!)
+data/raw/
+data/processed/
+# Raw video/sensor recording files get massive.
+*.vrs
+*.mp4
+*.mov
+*.npy
+*.csv
+!aria_post_review/sample_features.csv
+# Generated local dashboard data.
+gesture_review/review_data.generated.js
+# Generated eye-tracking plots.
+*.png
+# Local databases
+*.sqlite
+# Aria security certificates. Keep these local.
+.aria/
 
 # OS generated files
 .DS_Store
-
-
-*.csv
-*.png
-*.vrs

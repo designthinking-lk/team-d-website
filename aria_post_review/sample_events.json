@@ -1,0 +1,121 @@
+{
+  "metadata": {
+    "source": "sample_sdk_events",
+    "note": "Small SDK-shaped event file for testing build_review_data.py without glasses."
+  },
+  "hand_samples": [
+    {
+      "time_s": 2.0,
+      "left_visible": true,
+      "right_visible": true,
+      "left": {
+        "confidence": 0.9,
+        "wrist_position_device": [-0.18, 0.25, 0.45],
+        "palm_position_device": [-0.14, 0.22, 0.5]
+      },
+      "right": {
+        "confidence": 0.92,
+        "wrist_position_device": [0.18, 0.25, 0.45],
+        "palm_position_device": [0.14, 0.22, 0.5]
+      }
+    },
+    {
+      "time_s": 6.0,
+      "left_visible": true,
+      "right_visible": true,
+      "left": {
+        "confidence": 0.88,
+        "wrist_position_device": [-0.22, 0.28, 0.48],
+        "palm_position_device": [-0.18, 0.24, 0.54]
+      },
+      "right": {
+        "confidence": 0.9,
+        "wrist_position_device": [0.22, 0.28, 0.48],
+        "palm_position_device": [0.18, 0.24, 0.54]
+      }
+    },
+    {
+      "time_s": 35.0,
+      "left_visible": false,
+      "right_visible": false,
+      "left": null,
+      "right": null
+    },
+    {
+      "time_s": 41.0,
+      "left_visible": false,
+      "right_visible": false,
+      "left": null,
+      "right": null
+    },
+    {
+      "time_s": 66.0,
+      "left_visible": true,
+      "right_visible": true,
+      "left": {
+        "confidence": 0.86,
+        "wrist_position_device": [-0.15, 0.3, 0.46],
+        "palm_position_device": [-0.11, 0.26, 0.52]
+      },
+      "right": {
+        "confidence": 0.89,
+        "wrist_position_device": [0.15, 0.3, 0.46],
+        "palm_position_device": [0.11, 0.26, 0.52]
+      }
+    },
+    {
+      "time_s": 72.0,
+      "left_visible": true,
+      "right_visible": true,
+      "left": {
+        "confidence": 0.84,
+        "wrist_position_device": [-0.18, 0.32, 0.48],
+        "palm_position_device": [-0.13, 0.27, 0.56]
+      },
+      "right": {
+        "confidence": 0.88,
+        "wrist_position_device": [0.18, 0.32, 0.48],
+        "palm_position_device": [0.13, 0.27, 0.56]
+      }
+    },
+    {
+      "time_s": 80.0,
+      "left_visible": true,
+      "right_visible": true,
+      "left": {
+        "confidence": 0.8,
+        "wrist_position_device": [-0.12, 0.25, 0.5],
+        "palm_position_device": [-0.1, 0.23, 0.53]
+      },
+      "right": {
+        "confidence": 0.82,
+        "wrist_position_device": [0.12, 0.25, 0.5],
+        "palm_position_device": [0.1, 0.23, 0.53]
+      }
+    },
+    {
+      "time_s": 86.0,
+      "left_visible": true,
+      "right_visible": true,
+      "left": {
+        "confidence": 0.8,
+        "wrist_position_device": [-0.12, 0.25, 0.5],
+        "palm_position_device": [-0.1, 0.23, 0.53]
+      },
+      "right": {
+        "confidence": 0.82,
+        "wrist_position_device": [0.12, 0.25, 0.5],
+        "palm_position_device": [0.1, 0.23, 0.53]
+      }
+    }
+  ],
+  "ppg_samples": [
+    { "time_s": 2.0, "value": 800.0 },
+    { "time_s": 8.0, "value": 812.0 },
+    { "time_s": 14.0, "value": 910.0 },
+    { "time_s": 20.0, "value": 805.0 },
+    { "time_s": 26.0, "value": 798.0 },
+    { "time_s": 52.0, "value": 890.0 },
+    { "time_s": 94.0, "value": 905.0 }
+  ]
+}
