@@ -1,10 +1,105 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="refresh" content="0; url=./gesture_review/index.html" />
-    <title>Speak_Sync</title>
-  </head>
-  <body>
-    <p>Redirecting to Speak_Sync prototype...</p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EloQ Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="top-bar">
+      <div>
+        <p class="eyebrow">Judgement-free public speaking mentor</p>
+        <h1><span class="brand-mark">EloQ</span> Speaking Dashboard</h1>
+        <p class="header-subtitle">Transcript, gestures, voice, heart-rate signal, and gaze feedback in one post-session review.</p>
+      </div>
+      <div class="header-actions">
+        <label class="load-button" for="reportInput">Load Report JSON</label>
+        <input id="reportInput" type="file" accept="application/json,.json">
+        <button class="export-button" id="exportButton" type="button">Export Report</button>
+      </div>
+    </header>
+
+    <section class="summary-grid" id="summaryGrid" aria-label="Speech summary"></section>
+
+    <section class="legend" aria-label="Highlight legend">
+      <span><i class="legend-dot stress"></i>Increased heart rate</span>
+      <span><i class="legend-dot gesture"></i>Gesture improvement</span>
+      <span><i class="legend-dot voice"></i>Vocal delivery</span>
+      <span><i class="legend-dot good"></i>Good moment</span>
+      <span><i class="legend-dot neutral"></i>Neutral</span>
+    </section>
+
+    <section class="metadata-strip" id="metadataStrip" aria-label="Recording metadata"></section>
+
+    <section class="review-layout">
+      <div class="transcript-panel">
+        <div class="section-heading">
+          <h2>Transcript</h2>
+          <p>Data source: <span id="dataSource">Loading report...</span></p>
+        </div>
+        <div class="transcript-list" id="transcriptList"></div>
+      </div>
+
+      <aside class="details-panel" aria-live="polite">
+        <div id="emptyState" class="empty-state">
+          <h2>Select a highlight</h2>
+          <p>Choose a colored transcript section to view evidence, meaning, and a practical suggestion.</p>
+        </div>
+
+        <div id="detailsContent" class="details-content hidden">
+          <div class="details-header">
+            <span id="detailBadge" class="detail-badge"></span>
+            <span id="detailTime" class="detail-time"></span>
+          </div>
+          <h2 id="detailTitle"></h2>
+          <dl class="detail-list">
+            <div>
+              <dt>Evidence</dt>
+              <dd id="detailEvidence"></dd>
+            </div>
+            <div>
+              <dt>Meaning</dt>
+              <dd id="detailMeaning"></dd>
+            </div>
+            <div>
+              <dt>Suggestion</dt>
+              <dd id="detailSuggestion"></dd>
+            </div>
+          </dl>
+        </div>
+      </aside>
+    </section>
+
+    <section class="eye-report" id="eyeReport">
+      <div class="section-heading">
+        <h2>Eye Tracking</h2>
+        <p>Audience coverage and gaze flow</p>
+      </div>
+      <p class="eye-empty" id="eyeEmpty">No eye tracking data is loaded in this report yet.</p>
+      <div class="eye-metrics" id="eyeMetrics"></div>
+      <div class="eye-card-grid">
+        <article class="eye-visual-card eye-heatmap-card">
+          <h3>Gaze Heatmap</h3>
+          <p>Where your gaze clustered across the room</p>
+          <img id="eyeHeatmapImage" alt="Eye tracking gaze heatmap">
+        </article>
+        <article class="eye-visual-card">
+          <h3>Audience Sections</h3>
+          <p>How your attention was divided</p>
+          <div class="audience-map" id="eyeAudienceMap"></div>
+        </article>
+        <article class="eye-visual-card eye-visual-card-wide">
+          <h3>Attention Timeline</h3>
+          <p>Where you looked as the speech progressed</p>
+          <img id="eyeTimelineImage" alt="Eye tracking attention timeline">
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="review_data.generated.js"></script>
+  <script src="app.js"></script>
+</body>
 </html>
