@@ -169,7 +169,8 @@ const deviceHelp = document.querySelector("#deviceHelp");
 const recordingNote = document.querySelector("#recordingNote");
 const toastStack = document.querySelector("#toastStack");
 
-const isLocalDashboardServer = ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
+const isLocalHost = ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
+let dashboardBackendAvailable = false;
 let deviceState = {
   connected: false,
   recording: false,
@@ -226,6 +227,9 @@ async function apiRequest(path, options = {}) {
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
+    if (response.status === 404 && path.startsWith("/api/")) {
+      throw new Error("EloQ backend API was not found. Run aria_post_review/dashboard_server.py and open http://127.0.0.1:8765/.");
+    }
     throw new Error(payload.error || `Request failed: ${response.status}`);
   }
   return payload;
@@ -252,7 +256,7 @@ function updateDeviceControls(nextState = {}) {
     return;
   }
 
-  if (!isLocalDashboardServer) {
+  if (!isLocalHost) {
     checkDeviceButton.disabled = true;
     startRecordingButton.disabled = true;
     stopRecordingButton.disabled = true;
@@ -261,6 +265,19 @@ function updateDeviceControls(nextState = {}) {
     if (deviceHelp) {
       deviceHelp.textContent = "Open the dashboard through aria_post_review/dashboard_server.py to use USB-C glasses controls. The last generated report remains visible below.";
     }
+    return;
+  }
+
+  if (!dashboardBackendAvailable) {
+    checkDeviceButton.disabled = deviceBusy;
+    startRecordingButton.disabled = true;
+    stopRecordingButton.disabled = true;
+    generateReportButton.disabled = true;
+    setStatusPill("Backend not checked", "offline");
+    if (deviceHelp) {
+      deviceHelp.textContent = "If this is VS Code Live Server, the glasses buttons cannot work. Run aria_post_review/dashboard_server.py and open http://127.0.0.1:8765/.";
+    }
+    recordingNote.textContent = "Last generated report is shown below until the EloQ backend server is running.";
     return;
   }
 
@@ -300,11 +317,15 @@ function updateDeviceControls(nextState = {}) {
 async function refreshDeviceStatus({ silent = true } = {}) {
   try {
     const status = await apiRequest("/api/device/status");
+    dashboardBackendAvailable = true;
     updateDeviceControls(status);
     if (!silent) {
       showToast(status.connected ? "Connected" : "Glasses not connected", status.connected ? "success" : "error");
     }
   } catch (error) {
+    if (error.message.includes("backend API was not found")) {
+      dashboardBackendAvailable = false;
+    }
     updateDeviceControls({
       connected: false,
       recording: false,
@@ -346,9 +367,13 @@ function initDeviceControls() {
     setDeviceBusy(true);
     try {
       const status = await apiRequest("/api/device/status");
+      dashboardBackendAvailable = true;
       updateDeviceControls(status);
       showToast(status.connected ? "Connected" : "Glasses not connected", status.connected ? "success" : "error");
     } catch (error) {
+      if (error.message.includes("backend API was not found")) {
+        dashboardBackendAvailable = false;
+      }
       updateDeviceControls({ connected: false, recording: false, last_error: error.message });
       showToast(error.message, "error");
     } finally {
