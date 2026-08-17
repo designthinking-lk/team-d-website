@@ -196,6 +196,16 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
     try:
+        if not args.vrs_file and not args.hand_csv and not args.ppg_csv and not args.voice_csv:
+            raw_data_dir = Path("raw_data")
+            if raw_data_dir.exists():
+                vrs_files = list(raw_data_dir.glob("*.vrs"))
+                if len(vrs_files) == 1:
+                    args.vrs_file = str(vrs_files[0])
+                    print(f"Auto-detected VRS file: {args.vrs_file}")
+                elif len(vrs_files) > 1:
+                    raise ValueError(f"Found multiple .vrs files in {raw_data_dir}. Please specify one using --vrs-file.")
+
         if args.vrs_file:
             hand_csv, ppg_csv, voice_csv, eye_csv = export_vrs_inputs(
                 resolve_input_path(args.vrs_file),
@@ -213,7 +223,7 @@ if __name__ == "__main__":
             ]
             if missing:
                 raise ValueError(
-                    "Provide either --vrs-file or all three CSV inputs: "
+                    "Provide either --vrs-file, place a single .vrs file in raw_data/, or provide all three CSV inputs: "
                     + ", ".join(missing)
                 )
             hand_csv = resolve_input_path(args.hand_csv)
