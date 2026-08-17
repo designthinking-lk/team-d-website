@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "source": "sample_transcript",
+    "note": "Use this file as the transcript input for aria_post_review/build_review_data.py."
+  },
+  "segments": [
+    {
+      "id": "seg-001",
+      "start": "00:00",
+      "end": "00:08",
+      "text": "Hello everyone, today I will introduce our judgement free speaking mentor."
+    },
+    {
+      "id": "seg-002",
+      "start": "00:09",
+      "end": "00:17",
+      "text": "Many people feel nervous when they have to speak in front of others, especially when they think they are being judged."
+    },
+    {
+      "id": "seg-003",
+      "start": "00:18",
+      "end": "00:31",
+      "text": "Our project uses Meta Aria glasses to observe speech delivery signals and provide private feedback after practice."
+    },
+    {
+      "id": "seg-004",
+      "start": "00:32",
+      "end": "00:46",
+      "text": "The glasses can help us understand when the speaker's hands move outside the field of view."
+    },
+    {
+      "id": "seg-005",
+      "start": "00:47",
+      "end": "01:02",
+      "text": "We also use PPG signals to find parts of the speech where the speaker may have felt tense."
+    },
+    {
+      "id": "seg-006",
+      "start": "01:03",
+      "end": "01:16",
+      "text": "The goal is not to criticize the speaker, but to show clear improvement opportunities."
+    },
+    {
+      "id": "seg-007",
+      "start": "01:17",
+      "end": "01:29",
+      "text": "In future work, we want the mentor to give more personalized suggestions."
+    },
+    {
+      "id": "seg-008",
+      "start": "01:30",
+      "end": "01:42",
+      "text": "Thank you for listening, and I am happy to answer your questions."
+    }
+  ]
+}

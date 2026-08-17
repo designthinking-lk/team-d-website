@@ -1,6 +1,7 @@
 import os
 import csv
 import json
+import argparse
 from projectaria_tools.core import data_provider
 from projectaria_tools.core.sensor_data import TimeDomain
 
@@ -8,21 +9,21 @@ def ensure_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-def export_vrs_to_csv(vrs_path):
+def export_vrs_to_csv(vrs_path, output_dir="output"):
     if not os.path.exists(vrs_path):
         print(f"Error: Could not find {vrs_path}")
-        return
+        return {}
 
     provider = data_provider.create_vrs_data_provider(vrs_path)
     if not provider:
         print("Failed to open VRS file. It might be corrupted or incomplete.")
-        return
+        return {}
 
     print(f"Successfully opened {vrs_path}")
     print("-" * 40)
 
     # Directories for output
-    base_out = "output"
+    base_out = output_dir
     dirs = {
         "Eye Tracking": os.path.join(base_out, "eye_tracking"),
         "Hand Gesture": os.path.join(base_out, "hand_gesture"),
@@ -31,6 +32,7 @@ def export_vrs_to_csv(vrs_path):
     }
     for d in dirs.values():
         ensure_dir(d)
+    exported_paths = {}
 
     # Map stream labels to Stream IDs
     available_streams = {}
@@ -67,6 +69,7 @@ def export_vrs_to_csv(vrs_path):
         print(f"\nExporting {sensor_name} to CSV (Total Records: {num_records})...")
 
         out_csv_path = os.path.join(dirs[sensor_name], f"{sensor_name.lower().replace(' ', '_')}1.csv")
+        exported_paths[sensor_name] = out_csv_path
         
         with open(out_csv_path, 'w', newline='') as f:
             writer = csv.writer(f)
@@ -161,7 +164,15 @@ def export_vrs_to_csv(vrs_path):
                             writer.writerow([timestamp_ns, num, arr_str])
 
     print("\n[+] Successfully exported all requested files to 'output/' folders.")
+    return exported_paths
 
 if __name__ == "__main__":
-    VRS_FILE_PATH = "recordings/Aria-rec2-team5_20260816_151844.vrs"
-    export_vrs_to_csv(VRS_FILE_PATH)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "vrs_file",
+        nargs="?",
+        default="recordings/Aria-rec2-team5_20260816_151844.vrs",
+    )
+    parser.add_argument("--output-dir", default="output")
+    args = parser.parse_args()
+    export_vrs_to_csv(args.vrs_file, args.output_dir)
