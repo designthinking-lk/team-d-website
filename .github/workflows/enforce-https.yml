@@ -1,0 +1,28 @@
+name: Enforce HTTPS on Pages
+on:
+  page_build:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+permissions:
+  pages: write
+jobs:
+  enforce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce HTTPS once the cert is ready
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          for i in $(seq 1 30); do
+            enforced=$(gh api "repos/$REPO/pages" --jq '.https_enforced' 2>/dev/null || echo false)
+            state=$(gh api "repos/$REPO/pages" --jq '.https_certificate.state // "none"' 2>/dev/null || echo none)
+            echo "attempt $i: cert=$state enforced=$enforced"
+            [ "$enforced" = "true" ] && { echo "already enforced"; exit 0; }
+            if [ "$state" = "approved" ]; then
+              gh api -X PUT "repos/$REPO/pages" -F https_enforced=true && { echo "enforced"; exit 0; }
+            fi
+            sleep 60
+          done
+          echo "cert not ready after ~30 min — next trigger will retry"
