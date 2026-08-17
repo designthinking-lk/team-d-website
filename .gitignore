@@ -19,6 +19,8 @@ data/processed/
 !aria_post_review/sample_features.csv
 # Generated local dashboard data.
 gesture_review/review_data.generated.js
+# Generated eye-tracking plots.
+*.png
 # Local databases
 *.sqlite
 # Aria security certificates. Keep these local.
