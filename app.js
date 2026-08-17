@@ -1,7 +1,7 @@
 const fallbackReviewData = {
   metadata: {
     source: "sample",
-    createdBy: "gesture_review/app.js",
+    createdBy: "app.js",
     note: "Replace this with JSON generated from the Aria SDK pipeline."
   },
   summary: [

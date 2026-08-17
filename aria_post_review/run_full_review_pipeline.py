@@ -10,7 +10,7 @@ Output:
 - reconstructed WAV
 - OpenAI transcript JSON
 - dashboard report JSON
-- gesture_review/review_data.generated.js
+- review_data.generated.js
 """
 
 import argparse
@@ -170,7 +170,7 @@ def parse_args():
     parser.add_argument("--eye-image-output", type=Path, default=Path("data/processed/eye_tracking_report.png"))
     parser.add_argument("--transcript-output", type=Path, default=Path("data/processed/transcript_openai.json"))
     parser.add_argument("--report-output", type=Path, default=Path("data/processed/review_data.json"))
-    parser.add_argument("--web-output", type=Path, default=Path("gesture_review/review_data.generated.js"))
+    parser.add_argument("--web-output", type=Path, default=Path("review_data.generated.js"))
     parser.add_argument("--env-file", type=Path, default=Path(".env"))
     parser.add_argument("--sample-rate", type=int, default=16000)
     parser.add_argument("--channels", type=int, default=8)
